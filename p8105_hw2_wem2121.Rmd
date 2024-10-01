@@ -6,3 +6,94 @@ output: github_document
 ---
 
 
+```{r, results = 'hide'}
+library(tidyverse)
+```
+
+
+
+
+## Problem 1
+
+We begin by importing and cleaning the subway data set
+
+```{r, results= 'hide'}
+subway = read_csv(
+  "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") |> 
+  janitor::clean_names() |> 
+  select(line, station_name, station_la)
+```
+
+
+```{r}
+subway_cols = c("line", "station_name", "station_latitude", "station_longitude",
+                   "route1", "route2", "route3", "route4", "route5", "route6", "route7", 
+                   "route8", "route9", "route10", "route11", "entrance_type", "entry",
+                   "exit_only", "vending", "ada",    "ada_notes", "entrance_latitude",
+                   "entrance_longitude")
+
+subway = subway |> select(all_of(subway_cols))
+```
+
+We see here that `entry`, `exit_only`, and `vending` are character vectors, and `ada` is a logical vector
+```{r}
+logical_vars = c('entry', 'exit_only', 'vending', 'ada')
+
+subway |> 
+  select(all_of(logical_vars)) |> 
+  summary()
+```
+
+Inspecting the unique values of each character, we can find the character strings that correspond to each logical value.
+```{r}
+char_vars = c('entry', 'exit_only', 'vending')
+
+for(var in char_vars){
+  print(var)
+  
+  subway |> 
+    pull(var) |> 
+    unique() |> 
+    print()
+}
+```
+
+Using the `mutate()` function, we can reassign these variables to be logical based on the character strings that we found.
+```{r}
+subway = subway |> 
+  mutate(
+    entry = entry == 'YES',
+    exit_only = !is.na(exit_only),
+    vending = vending == 'YES')
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+head(subway)
+```
+
+
+```{r}
+colnames(subway)
+```
+
+
+```{r}
+head(subway)
+```
+
+
+```{r}
+subway |> pull('station_name') |> unique() |> length()
+```
+
+
+```{r}
+
+```
+
