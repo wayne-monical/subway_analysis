@@ -8,6 +8,7 @@ output: github_document
 
 ```{r, results = 'hide'}
 library(tidyverse)
+library(readxl)
 ```
 
 
@@ -133,5 +134,22 @@ subway |>
 107 / (166 + 107)
 ```
 
+## Problem 2
+
+Reading in the 2024 Mr Trash Wheel sheet. 
+```{r}
+trash = 
+  read_excel(
+    path = 'data/202409 Trash Wheel Collection Data.xlsx',
+    sheet = 'Mr. Trash Wheel',
+    range = 'A2:N653') |> 
+  janitor::clean_names()
+```
+
+
+
+```{r}
+
+```
 
 
