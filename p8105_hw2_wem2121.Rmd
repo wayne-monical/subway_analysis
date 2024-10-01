@@ -1,0 +1,8 @@
+---
+title: "Homework 2"
+author: "Wayne Monical wem2121"
+date: "2024-10-01"
+output: github_document
+---
+
+
