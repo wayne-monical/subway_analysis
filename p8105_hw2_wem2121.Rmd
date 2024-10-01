@@ -15,13 +15,14 @@ library(tidyverse)
 
 ## Problem 1
 
-We begin by importing and cleaning the subway data set
+### Data Cleaning
 
-```{r, results= 'hide'}
+We begin by importing and cleaning the subway data set. This data set contains information on the organization, location, and amenities in the New York city subway system. The data is tidy. The data is consistent, i.e. each row of the data frame contains information on one subway entrance or exit. It is structured, i.e. every variable, such as station, line, and latitude, has its own column. Finally, all values have their own cell, i.e. there is no value concatenation. 
+
+```{r}
 subway = read_csv(
   "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") |> 
-  janitor::clean_names() |> 
-  select(line, station_name, station_la)
+  janitor::clean_names()
 ```
 
 
@@ -68,32 +69,69 @@ subway = subway |>
 ```
 
 
+There are 465 distinct subway stations.
 ```{r}
+subway |> select('station_name', 'line') |> distinct() |> nrow()
+```
 
+We must also standardize the route variables as characters. 
+```{r}
+subway = subway |> 
+  mutate(
+    route1 = as.character(route1),
+    route2 = as.character(route2),
+    route3 = as.character(route3),
+    route4 = as.character(route4),
+    route5 = as.character(route5),
+    route6 = as.character(route6),
+    route7 = as.character(route7),
+    route8 = as.character(route8),
+    route9 = as.character(route9),
+    route10 = as.character(route10),
+    route11 = as.character(route11),
+  )
 ```
 
 
+
+### Q & A
+
+There are 84 ADA compliant subway stations. 
 ```{r}
-head(subway)
+subway |> filter(ada) |> select('station_name', 'line') |> distinct() |> nrow()
+```
+
+73% of station entrances and exits without vending allow entrance. 
+```{r}
+subway |> filter(!vending) |> pull(exit_only) |> summary()
+
+133 / (50 + 133)
+```
+
+### Pivoting 
+ 
+ Here, we pivot the route variables to a longer format and drop the rows that do not have a route. 
+```{r}
+subway= subway |> 
+  pivot_longer(
+    route1:route11,
+    names_to = 'route_number',
+    values_to = 'route'
+  ) |> 
+  filter(!is.na(route))
+```
+
+Using the code below, we find that 17 of the 43 of the stations on the A, 39%, are ADA compliant.  
+```{r}
+subway |> 
+  filter(route == 'A') |> 
+  select('line', 'station_name', 'ada') |>
+  distinct() |> 
+  pull(ada) |>
+  summary()
+
+107 / (166 + 107)
 ```
 
 
-```{r}
-colnames(subway)
-```
-
-
-```{r}
-head(subway)
-```
-
-
-```{r}
-subway |> pull('station_name') |> unique() |> length()
-```
-
-
-```{r}
-
-```
 
