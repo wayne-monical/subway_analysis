@@ -279,99 +279,26 @@ gbb =
 gbb |> write.csv('data/gbb_datasets/great_british_bake_off.csv')
 ```
 
+
+### Star Baker Table
+
+In the code below, we filter for episodes in seasons 5 through 10, and the star baker of each episode. I included the winner of the season in this table, because the season winner is the star baker of the final episode in each season. I arranged the table in order of series and then episode. In season five, we see that Richard Burr was star baker in five of the ten episodes, but failed to secure the win at the end of the season, which is surprising. 
+
 ```{r}
-gbb 
+gbb |> 
+  filter(
+  series >= 5,
+  series <= 10,
+  result %in% c('STAR BAKER', 'WINNER')
+  ) |> 
+  select(
+    series, baker_name, episode, result
+  ) |> 
+  arrange(series, episode)
 ```
-
-
-
-```{r}
-gbb |> group_by(series) |> pull(result) |> is.na() |> sum()
-```
-
 
 
 ### Viewership
-
-
-
-Are all bakers featured in at least one episode?
-```{r}
-nrow(anti_join(bakers, results))
-anti_join(bakers, bakes)
-```
-
-
-
-```{r}
-results |> filter(!baker %in%  bakers$baker ) 
-```
-
-
-
-```{r}
-results$baker |> head()
-```
-
-
-```{r}
-bakes$baker |> head()
-```
-
-
-
-```{r}
-bakers_missing_from_bakes = bakers |> filter(baker)
-```
-
-```{r}
-nrow(anti_join(bakes, results))
-nrow(anti_join(results, bakes))
-```
-
-
-
-
-```{r}
-bakers |> select(baker_name, baker_occupation) |> anti_join(bakes) 
-```
-
-
-```{r}
-nrow(anti_join(results, bakers))
-```
-```{r}
-nrow(anti_join(bakers, results))
-```
-
-```{r}
-nrow(anti_join(bakes, bakers))
-```
-
-```{r}
-nrow(anti_join(bakes, results))
-```
-
-```{r}
-nrow(anti_join(bakers, bakes))
-```
-
-```{r}
-bakes |> filter(baker == 'Alice Fevronia')
-```
-
-
-```{r}
-head(bakers)
-```
-
-```{r}
-head(bakes)
-```
-
-```{r}
-head(results)
-```
 
 
 ```{r}
@@ -380,13 +307,12 @@ viewers =
   janitor::clean_names()
 ```
 
-
-check for completeness and correctness by using antijoin?
-
-export to csv
-
-
-
-
-
+Here are the first ten rows of the `viewer` dataframe. 
+```{r}
+viewers |> head(10)
+```
+The average viewership by season is given below.
+```{r}
+viewers |> colMeans(na.rm = TRUE)
+```
 
