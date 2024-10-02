@@ -263,14 +263,24 @@ bakes |> pull(series) |> max()
 ### Merging Data
 
 
-Here we merge the data with full joins, since there are missing data points from `bakes`. In the code output, we see that we have successfully joined on our intended columns. The data set is tidy. Each row represents an individual contestants performance on a single episode of a single series. If a contestant 
+Here we merge the data with full joins, since there are missing data points from `bakes`. In the code output, we see that we have successfully joined on our intended columns. The data set is tidy. Each row represents an individual contestants performance on a single episode of a single series. If a contestant does not compete in an episode since they are eliminated, their `result` variable is `NA`, so we may also drop these rows. We also reorder the rows and columns for clarity. Finally, we save this data frame as a csv
 
 ```{r}
-gbb = bakers |> left_join(results) |> left_join(bakes)
+gbb = 
+  bakers |> 
+  left_join(results) |> 
+  left_join(bakes) |> 
+  filter(!is.na(result)) |> 
+  select(series, baker_name, baker, baker_age, baker_occupation, 
+         hometown, episode, result, technical, signature_bake, 
+         show_stopper) |> 
+  arrange(series, baker_name, episode, result)
+
+gbb |> write.csv('data/gbb_datasets/great_british_bake_off.csv')
 ```
 
 ```{r}
-gbb
+gbb 
 ```
 
 
