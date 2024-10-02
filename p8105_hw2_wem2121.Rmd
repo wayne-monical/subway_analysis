@@ -199,9 +199,7 @@ trash |>
 
 ## Problem 3
 
-Import and combine bakers.csv, bakes.csv, and results.csv to make a tidy dataset
-
-
+### Data Carpentry
 The first step is to import the data and look at it. Any non-tidy data can be corrected at this stage. 
 
 1) The `bakers` and `bakes` data is structured as expected, but the `results` data is not. Examining the csv file, we can see that the data frame begins on the third row. Specifying the argument `skip = 2` instructs the `read_csv()` function to skip the first two rows of the csv file, and therefore read the data as we expect. 
@@ -227,7 +225,64 @@ results =
 ```
 
 
-The second step is to check for completeness. 
+The second step is to check for completeness. We use the code below to search for any discrepancy between the `bakers` and the `results` data frame. We find that there is one missing name in each data set, namely "Jo" and "Joanne". Upon further research, we find that both of these names occur in series 2, and are very likely the same person. 
+```{r}
+anti_join(bakers, results) |> pull(baker) |> unique()
+anti_join(results, bakers) |> pull(baker) |> unique()
+```
+Here we change all instances of "Jo" to Joanne. So now the `bakers` and `results` data frames agree. 
+```{r}
+bakers = 
+  bakers |> 
+  mutate(baker = ifelse(baker == "Jo", "Joanne", baker))
+
+anti_join(bakers, results) |> pull(baker) |> unique()
+anti_join(results, bakers) |> pull(baker) |> unique()
+```
+
+We find and correct the same Joanne. issue in the `bakes` data set
+```{r}
+anti_join(bakes, bakers) |> pull(baker) |> unique()
+
+bakes = 
+  bakes |> 
+  mutate(baker = ifelse(baker == "\"Jo\"", "Joanne", baker))
+```
+
+
+However, there are still 24 names that are missing from `bakes`, all of which are from series 9 and 10. Inspecting `bakes`, we see that the max series it has is up until season 8, explaining the difference. 
+```{r}
+anti_join(bakes, bakers) |> pull(baker) |> unique()
+anti_join(bakers, bakes) |> 
+  select(series, baker) |> 
+  arrange(series, baker)
+
+bakes |> pull(series) |> max()
+```
+
+### Merging Data
+
+
+Here we merge the data with full joins, since there are missing data points from `bakes`. In the code output, we see that we have successfully joined on our intended columns. The data set is tidy. Each row represents an individual contestants performance on a single episode of a single series. If a contestant 
+
+```{r}
+gbb = bakers |> left_join(results) |> left_join(bakes)
+```
+
+```{r}
+gbb
+```
+
+
+
+```{r}
+gbb |> group_by(series) |> pull(result) |> is.na() |> sum()
+```
+
+
+
+### Viewership
+
 
 
 Are all bakers featured in at least one episode?
@@ -236,9 +291,7 @@ nrow(anti_join(bakers, results))
 anti_join(bakers, bakes)
 ```
 
-```{r}
-bakes |> filter(!baker %in%  bakers$baker ) 
-```
+
 
 ```{r}
 results |> filter(!baker %in%  bakers$baker ) 
