@@ -136,19 +136,70 @@ subway |>
 
 ## Problem 2
 
-Here we reading in the 2024 Mr Trash Wheel sheet using the `real_excel` function. We have specified the excel sheet and the data range, and we have rounded the number of sports balls and set it to integer values.  
+Here we reading in the 2024 Mr Trash Wheel sheet using the `read_excel` function. We have specified the excel sheet and the data range, and we have rounded the number of sports balls and set it to integer values. We also transform the year variable into an integer. 
 ```{r}
-trash = 
+mr_trash = 
   read_excel(
     path = 'data/202409 Trash Wheel Collection Data.xlsx',
     sheet = 'Mr. Trash Wheel',
     range = 'A2:N653') |> 
   janitor::clean_names() |> 
-  mutate(sports_balls = sports_balls |> round() |> as.integer())
+  mutate(
+    sports_balls = sports_balls |> round() |> as.integer(),
+    year = year |> as.integer())
 ```
 
 
+
+
+Using the same code structure, we can import and clean Gwynnda Trash Wheel's data.
+```{r}
+gwyndda_trash = 
+  read_excel(
+    path = 'data/202409 Trash Wheel Collection Data.xlsx',
+    sheet = 'Gwynnda Trash Wheel',
+    range = 'A2:K265') |> 
+  janitor::clean_names()
+```
+
+Adding a variable for `trash_wheel`, we can combine Mr Trash Wheel's data with Gwynnda's data with the `bind_rows` function, stacking the rows on top of each other. Note that there are some differences between the two data sets. For example, Gwynnda Trash Wheel has no `sports_balls` variable, so this variable is `NA` in Gwynnda's rows. 
+
+```{r}
+mr_trash = mr_trash |> mutate(trash_wheel = 'mr_trash')
+
+gwyndda_trash = gwyndda_trash |> mutate(trash_wheel = 'gwynnda')
+
+trash = bind_rows(mr_trash, gwyndda_trash)
+```
+
+
+
+
 What was the total weight collected by Mr. Trash Wheel?
+
+From `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> min()` to `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> max()`, Mr. Trash Wheel collected a total of `r trash |> filter(trash_wheel == 'mr_trash') |> pull(weight_tons) |> sum() |> round()` tons of trash.
+
+```{r}
+trash |> filter(trash_wheel == 'mr_trash') |> pull(weight_tons) |> sum()
+```
+
+By filtering for bins collected by Gwynnda in June of 2022, we can find that she collected a total of over `r trash |> 
+  filter(
+    trash_wheel == 'gwynnda',
+    year == 2022,
+    month == 'June') |> 
+  pull(cigarette_butts) |> 
+  sum() |> signif(digits = 2)` cigarette butts. 
+```{r}
+trash |> 
+  filter(
+    trash_wheel == 'gwynnda',
+    year == 2022,
+    month == 'June') |> 
+  pull(cigarette_butts) |> sum()
+```
+
+
 
 How many cigarette butts did Gwynnda collect in June 2022?
 
