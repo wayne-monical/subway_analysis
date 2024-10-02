@@ -263,7 +263,7 @@ bakes |> pull(series) |> max()
 ### Merging Data
 
 
-Here we merge the data with full joins, since there are missing data points from `bakes`. In the code output, we see that we have successfully joined on our intended columns. The data set is tidy. Each row represents an individual contestants performance on a single episode of a single series. If a contestant does not compete in an episode since they are eliminated, their `result` variable is `NA`, so we may also drop these rows. We also reorder the rows and columns for clarity. Finally, we save this data frame as a csv
+Here we merge the data with left joins, since there are missing data points from `bakes`. In the code output, we see that we have successfully joined on our intended columns. The data set is tidy. Each row represents an individual contestants performance on a single episode of a single series. If a contestant does not compete in an episode since they are eliminated, their `result` variable is `NA`, so we may also drop these rows. We also reorder the rows and columns for clarity. Finally, we save this data frame as a csv file.
 
 ```{r}
 gbb = 
@@ -282,7 +282,7 @@ gbb |> write.csv('data/gbb_datasets/great_british_bake_off.csv')
 
 ### Star Baker Table
 
-In the code below, we filter for episodes in seasons 5 through 10, and the star baker of each episode. I included the winner of the season in this table, because the season winner is the star baker of the final episode in each season. I arranged the table in order of series and then episode. In season five, we see that Richard Burr was star baker in five of the ten episodes, but failed to secure the win at the end of the season, which is surprising. 
+In the code below, we filter for episodes in seasons 5 through 10 and the name of the star baker in each episode. I included the winner of the season in this table, because the season winner is the star baker of the final episode in each season. I arranged the table in order of series and then episode. In season five, we see that Richard Burr was star baker in five of the ten episodes, but failed to secure the win at the end of the season, which is surprising. 
 
 ```{r}
 gbb |> 
@@ -300,19 +300,28 @@ gbb |>
 
 ### Viewership
 
-
+Here we import, clean, and analyze the viewership data from the Great British Bake Off. We see that the data is structured in the wide format, with each row containing all ratings of each episode number across ten seasons. In order to make this data tidy we will pivot the data so that each row is a single viewership number of a single episode. We will drop the missing values, since they correspond to non-existent episodes in the first several seasons. We will arrange the rows and columns for clarity.
 ```{r}
 viewers =
   read_csv('data/gbb_datasets/viewers.csv') |> 
-  janitor::clean_names()
+  janitor::clean_names() |> 
+  pivot_longer(
+    series_1:series_10,
+    names_to = 'series',
+    values_to = 'viewership'
+  ) |> drop_na() |> 
+  select(series, episode, viewership) |> 
+  arrange(series, episode, viewership)
 ```
 
 Here are the first ten rows of the `viewer` dataframe. 
 ```{r}
 viewers |> head(10)
 ```
-The average viewership by season is given below.
+The average viewership by season is given below. 
 ```{r}
-viewers |> colMeans(na.rm = TRUE)
+viewers |> 
+  group_by(series) |> 
+  summarise(mean_views = round(mean(viewership), 2))
 ```
 
