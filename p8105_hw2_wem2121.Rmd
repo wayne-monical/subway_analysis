@@ -136,20 +136,26 @@ subway |>
 
 ## Problem 2
 
-Reading in the 2024 Mr Trash Wheel sheet. 
+Here we reading in the 2024 Mr Trash Wheel sheet using the `real_excel` function. We have specified the excel sheet and the data range, and we have rounded the number of sports balls and set it to integer values.  
 ```{r}
 trash = 
   read_excel(
     path = 'data/202409 Trash Wheel Collection Data.xlsx',
     sheet = 'Mr. Trash Wheel',
     range = 'A2:N653') |> 
-  janitor::clean_names()
+  janitor::clean_names() |> 
+  mutate(sports_balls = sports_balls |> round() |> as.integer())
 ```
+
+
+What was the total weight collected by Mr. Trash Wheel?
+
+How many cigarette butts did Gwynnda collect in June 2022?
 
 
 
 ```{r}
-
+head(trash)
 ```
 
 
