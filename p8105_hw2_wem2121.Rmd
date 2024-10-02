@@ -136,7 +136,7 @@ subway |>
 
 ## Problem 2
 
-Here we reading in the 2024 Mr Trash Wheel sheet using the `read_excel` function. We have specified the excel sheet and the data range, and we have rounded the number of sports balls and set it to integer values. We also transform the year variable into an integer. 
+Here we reading in the 2024 Mr Trash Wheel sheet using the `read_excel` function. We have specified the excel sheet and the data range, and we have rounded the number of sports balls and set it to integer values. We also transform the year variable into an integer, so that when we combine this data set with Gwynnda Trash Wheel's data set, we are able to smoothly bind the rows. We have omitted the totalling rows from the original excel sheet, since they do not contain dumpter-specific data. 
 ```{r}
 mr_trash = 
   read_excel(
@@ -152,7 +152,7 @@ mr_trash =
 
 
 
-Using the same code structure, we can import and clean Gwynnda Trash Wheel's data.
+Using the same code structure, we can import and clean Gwynnda Trash Wheel's data to create a single tidy data set. This data set is tidy because each row corresponds to the data from a single dumpster, each column corresponds to a single variable, and each cell contains a single value. 
 ```{r}
 gwyndda_trash = 
   read_excel(
@@ -173,23 +173,19 @@ trash = bind_rows(mr_trash, gwyndda_trash)
 ```
 
 
-
-
-What was the total weight collected by Mr. Trash Wheel?
-
-From `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> min()` to `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> max()`, Mr. Trash Wheel collected a total of `r trash |> filter(trash_wheel == 'mr_trash') |> pull(weight_tons) |> sum() |> round()` tons of trash.
+With this tidy data set, we can use `dyplr` functions to answer any concrete question about the data. For example, from `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> min()` to `r trash |> filter(trash_wheel == 'mr_trash') |> pull(year) |> max()`, Mr. Trash Wheel collected a total of `r trash |> filter(trash_wheel == 'mr_trash') |> pull(weight_tons) |> sum() |> round()` tons of trash.
 
 ```{r}
 trash |> filter(trash_wheel == 'mr_trash') |> pull(weight_tons) |> sum()
 ```
 
-By filtering for bins collected by Gwynnda in June of 2022, we can find that she collected a total of over `r trash |> 
+By filtering for bins collected by Gwynnda in June of 2022, we can find that she collected a total of `r trash |> 
   filter(
     trash_wheel == 'gwynnda',
     year == 2022,
     month == 'June') |> 
   pull(cigarette_butts) |> 
-  sum() |> signif(digits = 2)` cigarette butts. 
+  sum()` cigarette butts in that month. 
 ```{r}
 trash |> 
   filter(
@@ -201,12 +197,109 @@ trash |>
 
 
 
-How many cigarette butts did Gwynnda collect in June 2022?
+## Problem 3
 
+Import and combine bakers.csv, bakes.csv, and results.csv to make a tidy dataset
+
+
+The first step is to import the data and look at it. Any non-tidy data can be corrected at this stage. 
+
+1) The `bakers` and `bakes` data is structured as expected, but the `results` data is not. Examining the csv file, we can see that the data frame begins on the third row. Specifying the argument `skip = 2` instructs the `read_csv()` function to skip the first two rows of the csv file, and therefore read the data as we expect. 
+
+2) The data will be joined by the names of the bakers, their series, and their episode. Therefore we need to standardize the names of these three variables by renaming the `baker_name` column to `baker` in the `bakers` data frame. 
+
+3) The `bakes` data frame has the column `signature_bakes` with the value "N/A", which should be treated as `NA`. We can specify this as a missing value in the `reaed_csv` function.
+```{r}
+bakers =
+  read_csv('data/gbb_datasets/bakers.csv') |> 
+  janitor::clean_names() |> 
+  mutate(baker = baker_name)
+
+bakes =
+  read_csv(
+    'data/gbb_datasets/bakes.csv',
+    na = c('N/A')) |> 
+  janitor::clean_names()
+
+results =
+  read_csv('data/gbb_datasets/results.csv', skip = 2) |> 
+  janitor::clean_names()
+```
+
+
+The second step is to check for completeness. 
+
+
+Are all bakers featured in at least one episode?
+```{r}
+nrow(anti_join(bakers, results))
+nrow(anti_join(bakers, bakes))
+```
+```{r}
+bakers_missing_from_bakes = bakers |> filter(baker)
+```
+
+```{r}
+nrow(anti_join(bakes, results))
+nrow(anti_join(results, bakes))
+```
 
 
 ```{r}
-head(trash)
+bakers |> select(baker_name, baker_occupation) |> anti_join(bakes) 
 ```
+
+
+```{r}
+nrow(anti_join(results, bakers))
+```
+```{r}
+nrow(anti_join(bakers, results))
+```
+
+```{r}
+nrow(anti_join(bakes, bakers))
+```
+
+```{r}
+nrow(anti_join(bakes, results))
+```
+
+```{r}
+nrow(anti_join(bakers, bakes))
+```
+
+```{r}
+bakes |> filter(baker == 'Alice Fevronia')
+```
+
+
+```{r}
+head(bakers)
+```
+
+```{r}
+head(bakes)
+```
+
+```{r}
+head(results)
+```
+
+
+```{r}
+viewers =
+  read_csv('data/gbb_datasets/viewers.csv') |> 
+  janitor::clean_names()
+```
+
+
+check for completeness and correctness by using antijoin?
+
+export to csv
+
+
+
+
 
 
