@@ -1,11 +1,17 @@
-Homework 2
+Subway Analysis
 ================
-Wayne Monical wem2121
+Wayne Monical
 2024-10-01
 
 ``` r
 library(tidyverse)
 ```
+
+    ## Warning: package 'tidyverse' was built under R version 4.4.2
+
+    ## Warning: package 'ggplot2' was built under R version 4.4.2
+
+    ## Warning: package 'dplyr' was built under R version 4.4.2
 
     ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
     ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
@@ -22,7 +28,9 @@ library(tidyverse)
 library(readxl)
 ```
 
-## Problem 1
+    ## Warning: package 'readxl' was built under R version 4.4.2
+
+## Subway Data
 
 ### Data Cleaning
 
@@ -61,7 +69,7 @@ subway = subway |> select(all_of(subway_cols))
 ```
 
 We see here that `entry`, `exit_only`, and `vending` are character
-vectors, and `ada` is a logical vector
+vectors, and `ada` is a logical vector.
 
 ``` r
 logical_vars = c('entry', 'exit_only', 'vending', 'ada')
@@ -137,8 +145,6 @@ subway = subway |>
   )
 ```
 
-### Q & A
-
 There are 84 ADA compliant subway stations.
 
 ``` r
@@ -198,15 +204,18 @@ subway |>
 
     ## [1] 0.3919414
 
-## Problem 2
+## Mr Trash Wheel
 
-Here we reading in the 2024 Mr Trash Wheel sheet using the `read_excel`
-function. We have specified the excel sheet and the data range, and we
-have rounded the number of sports balls and set it to integer values. We
-also transform the year variable into an integer, so that when we
-combine this data set with Gwynnda Trash Wheel’s data set, we are able
-to smoothly bind the rows. We have omitted the totalling rows from the
-original excel sheet, since they do not contain dumpter-specific data.
+Mr Trash Wheel is a machine that picks trash from the water with a large
+wheel. We will now analyze how much trash and what kind of trash he
+picks. We begin by reading in the 2024 Mr Trash Wheel sheet using the
+`read_excel` function. We have specified the excel sheet and the data
+range, and we have rounded the number of sports balls and set it to
+integer values. We also transform the year variable into an integer, so
+that when we combine this data set with Gwynnda Trash Wheel’s data set,
+we are able to smoothly bind the rows. We have omitted the totaling rows
+from the original excel sheet, since they do not contain
+dumpster-specific data.
 
 ``` r
 mr_trash = 
@@ -273,7 +282,7 @@ trash |>
 
     ## [1] 18120
 
-## Problem 3
+## Great British Baking Show
 
 ### Data Carpentry
 
